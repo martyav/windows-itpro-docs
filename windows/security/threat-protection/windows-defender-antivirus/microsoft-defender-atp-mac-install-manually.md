@@ -1,5 +1,5 @@
 ---
-title: Installing Microsoft Defender ATP for Mac with JAMF
+title: Installing Microsoft Defender ATP for Mac manually
 description: Describes how to install Microsoft Defender ATP for Mac manually, from the command line.
 keywords: microsoft, defender, atp, mac, installation, deploy, uninstallation, intune, jamf, macos, mojave, high sierra, sierra
 search.product: eADQiWindows 10XVcnh
