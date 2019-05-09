@@ -15,6 +15,7 @@ manager: dansimp
 audience: ITPro
 ms.collection: M365-security-compliance 
 ms.topic: conceptual
+ms.date: 05/16/1984
 ---
 
 # Microsoft Defender ATP for Mac
