@@ -33,7 +33,9 @@ With the ability to easily deploy updates to VMs running in VDIs, we've shortene
 
 This guide describes how to configure your VMs for optimal protection and performance, including how to:
 
-- [Set up a dedicated VDI file share for security intelligence updates](#set-up-a-dedicated-vdi-file-share)
+- [Set up a dedicated VDI file share for security intelligence updates and provisioning](#set-up-a-dedicated-vdi-file-share)
+  - [Deploy or assign to groups](#deploy-or-assign-to-groups)
+    - [Create groups](#create-groups)
 - [Randomize scheduled scans](#randomize-scheduled-scans)
 - [Use quick scans](#use-quick-scans)
 - [Prevent notifications](#prevent-notifications)
@@ -46,7 +48,7 @@ You can also download the whitepaper [Windows Defender Antivirus on Virtual Desk
 > [!IMPORTANT]
 > Although the VDI can be hosted on Windows Server 2012 or Windows Server 2016, the virtual machines (VMs) should be running Windows 10, 1607 at a minimum, due to increased protection technologies and features that are unavailable in earlier versions of Windows.<br/>There are performance and feature improvements to the way in which Windows Defender AV operates on virtual machines in Windows 10 Insider Preview, build 18323 (and later). We'll identify in this guide if you need to be using an Insider Preview build; if it isn't specified, then the minimum required version for the best protection and performance is Windows 10 1607.
 
-### Set up a dedicated VDI file share
+## Set up a dedicated VDI file share
 
 In Windows 10, version 1903, we introduced the shared security intelligence feature. This offloads the unpackaging of downloaded security intelligence updates onto a host machine - thus saving previous CPU, disk, and memory resources on individual machines. You can set this feature with [Intune](https://docs.microsoft.com/intune/fundamentals/what-is-intune), Group Policy, or PowerShell.
 
@@ -54,6 +56,10 @@ In Windows 10, version 1903, we introduced the shared security intelligence feat
 > If you don't already have Intune, [try it for free](https://docs.microsoft.com/intune/fundamentals/free-trial-sign-up)!
 
 Open the Intune Management Portal either by searching for Intune on [https://portal.azure.com](https://portal.azure.com) or going to [https://devicemanagement.microsoft.com](https://devicemanagement.microsoft.com) and logging in.
+
+### Create groups
+
+It’s a good idea to create a couple of groups, one with VMs running the latest Insider Preview build and with the shared security intelligence update feature enabled, and another with VMs that are running Windows 10 1809 or earlier versions. This will help when you create dashboards to test the performance changes.
 
 #### To create a group with only the devices or users you specify
 
@@ -66,8 +72,6 @@ Open the Intune Management Portal either by searching for Intune on [https://por
    - Membership type: **Assigned**
 
 3. Add the devices or users you want to be a part of this test and then click **Create** to save the group.
-
-It’s a good idea to create a couple of groups, one with VMs running the latest Insider Preview build and with the shared security intelligence update feature enabled, and another with VMs that are running Windows 10 1809 or earlier versions. This will help when you create dashboards to test the performance changes.
 
 #### To create a group that will include any machine in your tenant that is a VM, even when they are newly created
 
@@ -84,6 +88,10 @@ It’s a good idea to create a couple of groups, one with VMs running the latest
 4. Click **Add query** and then **Create** to save the group.
 
 5. Go to **Device configuration**, then **Profiles**. You can modify an existing custom profile or create a new one.
+
+### Deploy or assign to groups
+
+Once you have created your groups, you'll need to push configuration settings to the devices in your groups.
 
 #### Create a new device configuration profile
 
@@ -158,7 +166,7 @@ You can set a scheduled task to run once a day so that whenever the package is d
 
 Security intelligence packages are typically published once every three to four hours. Setting a frequency shorter than four hours isn’t advised because it will increase the network overhead on your management machine for no benefit.
 
-#### Set a scheduled task to run the powershell script
+#### Set a scheduled task to run the PowerShell script
 
 1. On the management machine, open the Start menu and type **Task Scheduler**. Open it and select **Create task…** on the side panel.
 
@@ -188,6 +196,20 @@ If you would prefer to do everything manually, this what you would need to do to
 4. Open a cmd prompt window and navigate to the GUID folder you created. Use the **/X** extraction command to extract the files, for example `mpam-fe.exe /X`.
 
    Note: The VMs will pick up the updated package whenever a new GUID folder is created with an extracted update package or whenever an existing folder is updated with a new extracted package.
+
+#### Set a scheduled task to update malware definitions for virtual machines
+
+The [SignatureDownloadCustomTask](https://www.powershellgallery.com/packages/SignatureDownloadCustomTask) PowerShell script simplifies the setting up of antimalware definitions for VMs and VM hosts. It allows VMs that don't have Internet connectivity or Windows Update (WU) connectivity to have up-to-date definitions.
+
+There are a number of ways you can install SignatureDownloadCustomTask.
+
+It can be set up on the host VM by running the following PowerShell command: `Install-Script -Name SignatureDownloadCustomTask`
+
+It can be installed manually by downloading and running the nupkg file directly; however, note that a manual install will require separate installation of any dependencies.
+
+The script can also be deployed automatically via the cloud, if you have the [Azure Automation](https://azure.microsoft.com/services/automation/) service.
+
+See [SignatureDownloadCustomTask PowerShell script](https://www.powershellgallery.com/packages/SignatureDownloadCustomTask) for full instructions on deploying this script via Azure Automation or manual installation.
 
 ### Randomize scheduled scans
 
