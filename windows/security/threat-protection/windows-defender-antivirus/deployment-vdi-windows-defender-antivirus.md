@@ -197,7 +197,7 @@ If you would prefer to do everything manually, this what you would need to do to
 
    Note: The VMs will pick up the updated package whenever a new GUID folder is created with an extracted update package or whenever an existing folder is updated with a new extracted package.
 
-#### Set a scheduled task to update malware definitions for virtual machines
+#### Set a custom task to update malware definitions
 
 The [SignatureDownloadCustomTask](https://www.powershellgallery.com/packages/SignatureDownloadCustomTask) PowerShell script simplifies the setting up of antimalware definitions for VMs and VM hosts. It allows VMs that don't have Internet connectivity or Windows Update (WU) connectivity to have up-to-date definitions.
 
