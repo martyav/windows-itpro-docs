@@ -33,7 +33,9 @@ With the ability to easily deploy updates to VMs running in VDIs, we've shortene
 
 This guide describes how to configure your VMs for optimal protection and performance, including how to:
 
-- [Set up a dedicated VDI file share for security intelligence updates](#set-up-a-dedicated-vdi-file-share)
+- [Set up a dedicated VDI file share for security intelligence updates and provisioning](#set-up-a-dedicated-vdi-file-share)
+  - [Deploy or assign to groups](#deploy-or-assign-to-groups)
+    - [Create groups](#create-groups)
 - [Randomize scheduled scans](#randomize-scheduled-scans)
 - [Use quick scans](#use-quick-scans)
 - [Prevent notifications](#prevent-notifications)
@@ -46,32 +48,20 @@ You can also download the whitepaper [Windows Defender Antivirus on Virtual Desk
 > [!IMPORTANT]
 > Although the VDI can be hosted on Windows Server 2012 or Windows Server 2016, the virtual machines (VMs) should be running Windows 10, 1607 at a minimum, due to increased protection technologies and features that are unavailable in earlier versions of Windows.<br/>There are performance and feature improvements to the way in which Windows Defender AV operates on virtual machines in Windows 10 Insider Preview, build 18323 (and later). We'll identify in this guide if you need to be using an Insider Preview build; if it isn't specified, then the minimum required version for the best protection and performance is Windows 10 1607.
 
-## Deploy updates
+## Prerequisites
 
-### Set up a dedicated VDI file share
+Before you begin, make sure that all the devices you intend to onboard meet the [minimum requirements](https://docs.microsoft.com/windows/security/threat-protection/microsoft-defender-atp/minimum-requirements) for Microsoft Defender ATP.
+
+## Set up a dedicated VDI file share
 
 In Windows 10, version 1903, we introduced the shared security intelligence feature. This offloads the unpackaging of downloaded security intelligence updates onto a host machine - thus saving previous CPU, disk, and memory resources on individual machines. You can set this feature with [Intune](https://docs.microsoft.com/intune/fundamentals/what-is-intune), Group Policy, or PowerShell.
 
-> [!TIP]
-> If you don't already have Intune, [try it for free](https://docs.microsoft.com/intune/fundamentals/free-trial-sign-up)! 
+### Create groups with Intune
 
 Open the Intune Management Portal either by searching for Intune on [https://portal.azure.com](https://portal.azure.com) or going to [https://devicemanagement.microsoft.com](https://devicemanagement.microsoft.com) and logging in.
 
-### Create a new policy
-
-#### To create a group with only the devices or users you specify
-
-1. Go to **Groups** > **New group**.
-
-2. Specify the following values:
-   - Group type: **Security**
-   - Group name: **VDI test VMs**
-   - Group description: *Optional*
-   - Membership type: **Assigned**
-
-3. Add the devices or users you want to be a part of this test and then click **Create** to save the group.
-
-It’s a good idea to create a couple of groups, one with VMs running the latest Insider Preview build and with the shared security intelligence update feature enabled, and another with VMs that are running Windows 10 1809 or earlier versions. This will help when you create dashboards to test the performance changes.
+> [!TIP]
+> If you don't already have Intune, [try it for free](https://docs.microsoft.com/intune/fundamentals/free-trial-sign-up)!
 
 #### To create a group that will include any machine in your tenant that is a VM, even when they are newly created
 
@@ -89,7 +79,28 @@ It’s a good idea to create a couple of groups, one with VMs running the latest
 
 5. Go to **Device configuration**, then **Profiles**. You can modify an existing custom profile or create a new one.
 
-### Create a new device configuration profile
+> [!TIP]
+> It’s a good idea to create [several groups](https://docs.microsoft.com/mem/intune/fundamentals/groups-add) — one with VMs running the latest Insider Preview build and with the shared security intelligence update feature enabled, and others with VMs that are running Windows 10 1809 or earlier versions.
+>
+> This will help when you create dashboards to test changes in performance from version to version.
+
+#### To create a group with only the devices or users you specify
+
+1. Go to **Groups** > **New group**.
+
+2. Specify the following values:
+   - Group type: **Security**
+   - Group name: **VDI test VMs**
+   - Group description: *Optional*
+   - Membership type: **Assigned**
+
+3. Add the devices or users you want to be a part of this test and then click **Create** to save the group.
+
+### Deploy or assign to groups
+
+Once you have created your groups, you'll need to push configuration settings to the devices in your groups.
+
+### Create a new device configuration profile with Intune
 
 In this example, we create a new device configuration profile by clicking **Create profile**.
 
@@ -112,7 +123,7 @@ In this example, we create a new device configuration profile by clicking **Crea
 
 The profile will now be deployed to the impacted devices. This may take some time.
 
-### Use Group Policy to enable the shared security intelligence feature
+#### Use Group Policy to enable the shared security intelligence feature
 
 1. On your Group Policy management computer, open the Group Policy Management Console, right-click the Group Policy Object you want to configure, and then click **Edit**.
 
@@ -130,7 +141,7 @@ The profile will now be deployed to the impacted devices. This may take some tim
 
 8. Deploy the GPO to the VMs you want to test.
 
-### Use PowerShell to enable the shared security intelligence feature
+#### Use PowerShell to enable the shared security intelligence feature
 
 Use the following cmdlet to enable the feature. You’ll need to then push this as you normally would push PowerShell-based configuration policies onto the VMs.
 
@@ -155,15 +166,14 @@ New-Item -ItemType Directory -Force -Path $vdmpath | Out-Null
 
 Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64' -OutFile $vdmpackage
 
-cmd /c "cd $vdmpath & c: & mpam-fe.exe /x" 
+cmd /c "cd $vdmpath & c: & mpam-fe.exe /x"
 ```
 
-You can set a scheduled task to run once a day so that whenever the package is downloaded and unpacked then the VMs will receive the new update. 
-We suggest starting with once a day – but you should experiment with increasing or decreasing the frequency to understand the impact. 
+You can set a scheduled task to run once a day so that whenever the package is downloaded and unpacked then the VMs will receive the new update. We suggest starting with once a day – but you should experiment with increasing or decreasing the frequency to understand the impact.
 
 Security intelligence packages are typically published once every three to four hours. Setting a frequency shorter than four hours isn’t advised because it will increase the network overhead on your management machine for no benefit.
 
-### Set a scheduled task to run the powershell script
+### Set a scheduled task to run the PowerShell script
 
 1. On the management machine, open the Start menu and type **Task Scheduler**. Open it and select **Create task…** on the side panel.
 
@@ -185,7 +195,8 @@ If you would prefer to do everything manually, this what you would need to do to
 
 2. Create a subfolder under *wdav_update* with a GUID name, such as `{00000000-0000-0000-0000-000000000000}`; for example `c:\wdav_update\{00000000-0000-0000-0000-000000000000}`.
 
-  Note: In the script we set it so the last 12 digits of the GUID are the year, month, day, and time when the file was downloaded so that a new folder is created each time. You can change this so that the file is downloaded to the same folder each time.
+> [!NOTE]
+> In the script we set it so the last 12 digits of the GUID are the year, month, day, and time when the file was downloaded so that a new folder is created each time. You can change this so that the file is downloaded to the same folder each time.
 
 3. Download a security intelligence package from [https://www.microsoft.com/wdsi/definitions](https://www.microsoft.com/wdsi/definitions)  into the GUID folder. The file should be named `mpam-fe.exe`.
 
@@ -193,7 +204,19 @@ If you would prefer to do everything manually, this what you would need to do to
 
    Note: The VMs will pick up the updated package whenever a new GUID folder is created with an extracted update package or whenever an existing folder is updated with a new extracted package.
 
-## Randomize scheduled scans
+#### Set a custom task to update malware definitions
+
+The [SignatureDownloadCustomTask](https://www.powershellgallery.com/packages/SignatureDownloadCustomTask) PowerShell script simplifies the setting up of antimalware definitions for VMs and VM hosts. It allows VMs that don't have Internet connectivity or Windows Update (WU) connectivity to have up-to-date definitions.
+
+It can be set up on the host VM by running the following PowerShell command: `Install-Script -Name SignatureDownloadCustomTask`
+
+It can be installed manually by downloading and running the nupkg file directly; however, note that a manual install will require separate installation of any dependencies.
+
+The script can also be deployed automatically via the cloud, if you have the [Azure Automation](https://azure.microsoft.com/services/automation/) service.
+
+See [SignatureDownloadCustomTask PowerShell script](https://www.powershellgallery.com/packages/SignatureDownloadCustomTask) for full instructions on deploying this script via Azure Automation or manual installation.
+
+### Randomize scheduled scans
 
 Scheduled scans run in addition to [real-time protection and scanning](configure-real-time-protection-windows-defender-antivirus.md).
 
@@ -208,7 +231,7 @@ Quick scans are the preferred approach as they are designed to look in all place
 
 1. Expand the tree to **Windows components > Windows Defender > Scan**.
 
-2. Double-click **Specify the scan type to use for a scheduled scan** and set the option to **Enabled** and **Quick scan**. 
+2. Double-click **Specify the scan type to use for a scheduled scan** and set the option to **Enabled** and **Quick scan**.
 
 3. Click **OK**.
 
@@ -239,7 +262,7 @@ This setting will prevent a scan from occurring after receiving an update. You c
 
 This prevents a scan from running immediately after an update.
 
-## Scan VMs that have been offline
+### Scan VMs that have been offline
 
 1. Expand the tree to **Windows components > Windows Defender > Scan**.
 
@@ -249,7 +272,7 @@ This prevents a scan from running immediately after an update.
 
 This forces a scan if the VM has missed two or more consecutive scheduled scans.
 
-## Enable headless UI mode
+### Enable headless UI mode
 
 1. Double-click **Enable headless UI mode** and set the option to **Enabled**.
 
