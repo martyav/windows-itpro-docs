@@ -34,8 +34,8 @@ With the ability to easily deploy updates to VMs running in VDIs, we've shortene
 This guide describes how to configure your VMs for optimal protection and performance, including how to:
 
 - [Set up a dedicated VDI file share for security intelligence updates and provisioning](#set-up-a-dedicated-vdi-file-share)
-  - [Deploy or assign to groups](#deploy-or-assign-to-groups)
-    - [Create groups](#create-groups)
+   - [Create groups with Intune](#create-groups-with-intune)
+   - [Deploy or assign to groups](#deploy-or-assign-to-groups)
 - [Randomize scheduled scans](#randomize-scheduled-scans)
 - [Use quick scans](#use-quick-scans)
 - [Prevent notifications](#prevent-notifications)
@@ -51,6 +51,8 @@ You can also download the whitepaper [Windows Defender Antivirus on Virtual Desk
 ## Prerequisites
 
 Before you begin, make sure that all the devices you intend to onboard meet the [minimum requirements](https://docs.microsoft.com/windows/security/threat-protection/microsoft-defender-atp/minimum-requirements) for Microsoft Defender ATP.
+
+We recommend running [Microsoft Defender Antivirus platform](microsoft-defender-antivirus-in-windows-10) version 4.18.2004.6 or higher.
 
 ## Set up a dedicated VDI file share
 
@@ -100,7 +102,7 @@ Open the Intune Management Portal either by searching for Intune on [https://por
 
 Once you have created your groups, you'll need to push configuration settings to the devices in your groups.
 
-### Create a new device configuration profile with Intune
+#### Create a new device configuration profile with Intune
 
 In this example, we create a new device configuration profile by clicking **Create profile**.
 
@@ -120,8 +122,6 @@ In this example, we create a new device configuration profile by clicking **Crea
 5. Click **Assignments**. The **Include** tab is automatically selected. In the drop-down menu, select **Selected Groups**, then click **Select groups to include**. Click the **VDI test VMs** group and then **Select**.
 
 6. Click **Evaluate** to see how many users/devices will be impacted. If the number makes sense, click **Save**. If the number doesn’t make sense, go back to the groups blade and confirm the group contains the right users or devices.
-
-The profile will now be deployed to the impacted devices. This may take some time.
 
 #### Use Group Policy to enable the shared security intelligence feature
 
