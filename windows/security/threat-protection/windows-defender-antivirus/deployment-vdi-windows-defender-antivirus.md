@@ -46,7 +46,9 @@ This guide describes how to configure your VMs for optimal protection and perfor
 You can also download the whitepaper [Windows Defender Antivirus on Virtual Desktop Infrastructure](https://demo.wd.microsoft.com/Content/wdav-testing-vdi-ssu.pdf), which looks at the new shared security intelligence update feature, alongside performance testing and guidance on how you can test antivirus performance on your own VDI.
 
 > [!IMPORTANT]
-> Although the VDI can be hosted on Windows Server 2012 or Windows Server 2016, the virtual machines (VMs) should be running Windows 10, 1607 at a minimum, due to increased protection technologies and features that are unavailable in earlier versions of Windows.<br/>There are performance and feature improvements to the way in which Windows Defender AV operates on virtual machines in Windows 10 Insider Preview, build 18323 (and later). We'll identify in this guide if you need to be using an Insider Preview build; if it isn't specified, then the minimum required version for the best protection and performance is Windows 10 1607.
+> Although the VDI can be hosted on Windows Server 2012 or Windows Server 2016, the virtual machines (VMs) should be running Windows 10, 1607 at a minimum, due to increased protection technologies and features that are unavailable in earlier versions of Windows.
+>
+> There are performance and feature improvements to the way in which Windows Defender AV operates on virtual machines in Windows 10 Insider Preview, build 18323 (and later). We'll identify in this guide if you need to be using an Insider Preview build; if it isn't specified, then the minimum required version for the best protection and performance is Windows 10 1607.
 
 ## Prerequisites
 
@@ -151,7 +153,7 @@ Set-MpPreference -SharedSignaturesPath \\<shared location>\wdav-update
 
 See the [Download and unpackage](#download-and-unpackage-the-latest-updates) section for what the \<shared location\> will be.
 
-## Download and unpackage the latest updates
+### Download and unpackage the latest updates
 
 Now you can get started on downloading and installing new updates. We’ve created a sample PowerShell script for you below. This script is the easiest way to download new updates and get them ready for your VMs. You should then set the script to run at a certain time on the management machine by using a scheduled task (or, if you’re familiar with using PowerShell scripts in Azure, Intune, or SCCM, you could also use those).
 
@@ -173,7 +175,7 @@ You can set a scheduled task to run once a day so that whenever the package is d
 
 Security intelligence packages are typically published once every three to four hours. Setting a frequency shorter than four hours isn’t advised because it will increase the network overhead on your management machine for no benefit.
 
-### Set a scheduled task to run the PowerShell script
+#### Set a scheduled task to run the PowerShell script
 
 1. On the management machine, open the Start menu and type **Task Scheduler**. Open it and select **Create task…** on the side panel.
 
@@ -187,7 +189,7 @@ Security intelligence packages are typically published once every three to four 
 
 You can initiate the update manually by right-clicking on the task and clicking **Run**.
 
-### Download and unpackage manually
+#### Download and unpackage manually
 
 If you would prefer to do everything manually, this what you would need to do to replicate the script’s behavior:
 
@@ -224,7 +226,7 @@ The start time of the scan itself is still based on the scheduled scan policy �
 
 See [Schedule scans](scheduled-catch-up-scans-windows-defender-antivirus.md) for other configuration options available for scheduled scans.
 
-## Use quick scans
+### Use quick scans
 
 You can specify the type of scan that should be performed during a scheduled scan.
 Quick scans are the preferred approach as they are designed to look in all places where malware needs to reside to be active.
@@ -235,7 +237,7 @@ Quick scans are the preferred approach as they are designed to look in all place
 
 3. Click **OK**.
 
-## Prevent notifications
+### Prevent notifications
 
 Sometimes, Windows Defender Antivirus notifications may be sent to or persist across multiple sessions. In order to minimize this problem, you can use the lock down the Windows Defender Antivirus user interface.
 
@@ -247,7 +249,7 @@ Sometimes, Windows Defender Antivirus notifications may be sent to or persist ac
 
 This prevents notifications from Windows Defender AV appearing in the action center on Windows 10 when scans or remediation is performed.
 
-## Disable scans after an update
+### Disable scans after an update
 
 This setting will prevent a scan from occurring after receiving an update. You can apply this when creating the base image if you have also run a quick scan. This prevents the newly updated VM from performing a scan again (as you've already scanned it when you created the base image).
 
@@ -262,7 +264,7 @@ This setting will prevent a scan from occurring after receiving an update. You c
 
 This prevents a scan from running immediately after an update.
 
-### Scan VMs that have been offline
+#### Scan VMs that have been offline
 
 1. Expand the tree to **Windows components > Windows Defender > Scan**.
 
@@ -272,7 +274,7 @@ This prevents a scan from running immediately after an update.
 
 This forces a scan if the VM has missed two or more consecutive scheduled scans.
 
-### Enable headless UI mode
+#### Enable headless UI mode
 
 1. Double-click **Enable headless UI mode** and set the option to **Enabled**.
 
@@ -280,7 +282,7 @@ This forces a scan if the VM has missed two or more consecutive scheduled scans.
 
 This hides the entire Windows Defender AV user interface from users.
 
-## Exclusions
+### Exclusions
 
 On Windows Server 2016, Windows Defender Antivirus will automatically deliver the right exclusions for servers running a VDI environment. However, if you are running an older Windows server version, see [Configure Windows Defender Antivirus exclusions on Windows Server](https://docs.microsoft.com/windows/security/threat-protection/windows-defender-antivirus/configure-server-exclusions-windows-defender-antivirus).
 
