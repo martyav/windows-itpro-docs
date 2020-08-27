@@ -75,9 +75,15 @@ While you can start a threat scan at any time with Microsoft Defender ATP, your 
     launchctl start <your file name>
     ```
 
-5. Your scheduled scan will run at the date, time, and frequency you defined in your p-list. In the example, the scan runs at 2:00 AM every seven days on a Friday, with the StartInterval using 604,800 seconds for one week.
+5. Your scheduled scan will run at the date, time, and frequency you defined in your p-list. In the example, the scan runs at 2:00 AM every Friday. 
 
- > [!NOTE]
- > Agents executed with *launchd* will not run at the scheduled time while the computer is asleep. They will instead run once the device resumes from sleep mode.
- > 
+    Note that the `StartInterval` value is in seconds, indicating that scans should run every 604,800 seconds (one week), while the `Weekday` value of `StartCalendarInterval` uses an integer to indicate the fifth day of the week, or Friday.
+
+ > [!IMPORTANT]
+ > Agents executed with *launchd* will not run at the scheduled time while the device is asleep. They will instead run once the device resumes from sleep mode.
+ >
  > If the device is turned off, the scan will run at the next scheduled scan time.
+
+## Schedule a scan with Intune
+
+You can also schedule scans with Microsoft Intune. The [runMDATPQuickScan.sh](https://github.com/microsoft/shell-intune-samples/tree/master/Misc/MDATP#runmdatpquickscansh) shell script available at [Scripts for Microsoft Defender Advanced Threat Protection](https://github.com/microsoft/shell-intune-samples/tree/master/Misc/MDATP) will persist when the device resumes from sleep mode.
